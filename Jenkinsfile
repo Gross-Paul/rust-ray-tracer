@@ -2,8 +2,6 @@ pipeline {
   agent {
     docker {
       image 'rust:latest'
-      args '''--volume jenkins-data:/var/jenkins_home
---volume jenkins-docker-certs:/certs/client:ro'''
     }
 
   }
@@ -24,8 +22,8 @@ pipeline {
       steps {
         sh 'cargo doc'
         step([$class: 'JavadocArchiver',
-                              javadocDir: 'target/doc',
-                              keepAll: false])
+                                      javadocDir: 'target/doc',
+                                      keepAll: false])
       }
     }
 
