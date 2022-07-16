@@ -19,6 +19,7 @@ impl Point3D {
 
 #[cfg(test)]
 mod tests {
+    /// Assert float equal
     macro_rules! assert_float_equal {
         ($a:expr, $b:expr) => {{
             let eps: f64 = 10e-5;
@@ -33,7 +34,7 @@ mod tests {
         fn new_is_new() {
             let x = 5.;
             let y = -50.;
-            let z = 100000000.;
+            let z = 100.;
             let point = Point3D::new(x, y, z);
 
             assert_float_equal!(x, point.x);
