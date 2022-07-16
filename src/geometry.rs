@@ -1,0 +1,54 @@
+/// A 3D Point using f64
+struct Point3D {
+    x: f64,
+    y: f64,
+    z: f64,
+}
+
+impl Point3D {
+    /// Constructor for Point3D
+    fn new(x: f64, y: f64, z: f64) -> Point3D {
+        Point3D { x, y, z }
+    }
+
+    /// Creates a Point at 0, 0, 0
+    fn zero() -> Point3D {
+        Point3D::new(0., 0., 0.)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    macro_rules! assert_float_equal {
+        ($a:expr, $b:expr) => {{
+            let eps: f64 = 10e-5;
+            assert!(f64::abs($a - $b) < eps);
+        }};
+    }
+    mod geometry {
+        use crate::geometry::Point3D;
+
+        /// Is the new constructor working as expected
+        #[test]
+        fn new_is_new() {
+            let x = 5.;
+            let y = -50.;
+            let z = 100000000.;
+            let point = Point3D::new(x, y, z);
+
+            assert_float_equal!(x, point.x);
+            assert_float_equal!(y, point.y);
+            assert_float_equal!(z, point.z);
+        }
+
+        /// Is the zero constructor working as expected
+        #[test]
+        fn zero_is_indeed_zero() {
+            let point = Point3D::zero();
+
+            assert_float_equal!(0., point.x);
+            assert_float_equal!(0., point.y);
+            assert_float_equal!(0., point.z);
+        }
+    }
+}
