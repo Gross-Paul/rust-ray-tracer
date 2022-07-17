@@ -1,3 +1,5 @@
+use std::ops;
+
 /// A 3D Point using f64
 struct Point3D {
     x: f64,
@@ -14,6 +16,16 @@ impl Point3D {
     /// Creates a Point at 0, 0, 0
     fn zero() -> Point3D {
         Point3D::new(0., 0., 0.)
+    }
+}
+
+
+impl ops::Add<Point3D> for Point3D {
+    type Output = Point3D;
+
+    /// Bitwise sum
+    fn add(self, _rhs: Point3D) -> Point3D {
+        Point3D { x: (self.x + _rhs.x), y: (self.y + _rhs.y), z: (self.z + _rhs.z) }
     }
 }
 
