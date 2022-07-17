@@ -21,9 +21,6 @@ pipeline {
     stage('Doc') {
       steps {
         sh 'cargo doc'
-        step([$class: 'JavadocArchiver',
-                                                      javadocDir: 'target/doc',
-                                                      keepAll: false])
       }
     }
 
