@@ -63,5 +63,17 @@ mod tests {
             assert_float_equal!(0., point.y);
             assert_float_equal!(0., point.z);
         }
+
+        #[test]
+        fn add_is_add() {
+            let p1 = Point3D::new(1., -5., 10.);
+            let p2 = Point3D::new(-0.5, 1.7, 20000.);
+
+            let p1_add_p2 = p1 + p2;
+
+            assert_float_equal!(0.5, p1_add_p2.x);
+            assert_float_equal!(-3.3, p1_add_p2.y);
+            assert_float_equal!(20010., p1_add_p2.z);
+        }
     }
 }
