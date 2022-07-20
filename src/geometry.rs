@@ -23,6 +23,7 @@ impl Point3D {
         f64::sqrt(self.x * self.x + self.y * self.y + self.z * self.z)
     }
 
+}
 
 impl ops::Add<Point3D> for Point3D {
     type Output = Point3D;
