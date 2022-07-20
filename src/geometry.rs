@@ -17,7 +17,11 @@ impl Point3D {
     fn zero() -> Point3D {
         Point3D::new(0., 0., 0.)
     }
-}
+
+    /// The amplitude of the vector or the distance between zero and this point
+    pub fn amplitude(&self) -> f64 {
+        f64::sqrt(self.x * self.x + self.y * self.y + self.z * self.z)
+    }
 
 
 impl ops::Add<Point3D> for Point3D {
@@ -74,6 +78,15 @@ mod tests {
             assert_float_equal!(0.5, p1_add_p2.x);
             assert_float_equal!(-3.3, p1_add_p2.y);
             assert_float_equal!(20010., p1_add_p2.z);
+        }
+
+        #[test]
+        fn test_amplitude() {
+            let p1 = Point3D::new(5., 0., 0.);
+            assert_float_equal!(5., p1.amplitude());
+            
+            let p1 = Point3D::new(-3., 4., 9.);
+            assert_float_equal!(f64::sqrt(106.), p1.amplitude());
         }
     }
 }
