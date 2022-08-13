@@ -1,4 +1,7 @@
-use std::{ops::{Add, Deref, Div, Mul, Neg, Sub}, f64::consts::{FRAC_PI_2, PI}};
+use std::{
+    f64::consts::{FRAC_PI_2, PI},
+    ops::{Add, Deref, Div, Mul, Neg, Sub},
+};
 
 use rand::{thread_rng, Rng};
 
@@ -14,7 +17,9 @@ impl<T: Copy> Triple<T> {
 #[derive(Clone, Copy)]
 pub struct Vec3(Triple<f64>);
 
+#[derive(Clone, Copy)]
 pub struct ColorU8(Triple<u8>);
+
 pub type Point3 = Vec3;
 pub type ColorF64 = Vec3;
 
@@ -45,9 +50,8 @@ impl From<ColorF64> for ColorU8 {
 }
 
 impl Vec3 {
-    pub fn zero() -> Vec3 {
-        Vec3(Triple(0., 0., 0.))
-    }
+    pub const ZERO: Vec3 = Vec3(Triple(0.0, 0.0, 0.0));
+    pub const ONE: Vec3 = Vec3(Triple(1.0, 1.0, 1.0));
 
     pub fn new(x: f64, y: f64, z: f64) -> Vec3 {
         Vec3(Triple(x, y, z))
@@ -69,15 +73,18 @@ impl Vec3 {
 
     pub fn random_point_on_unit_sphere() -> Vec3 {
         let mut rng = thread_rng();
-        let (u, v) : (f64, f64) = rng.gen();
+        let (u, v): (f64, f64) = rng.gen();
 
         let gamma = f64::acos(2. * u - 1.) - FRAC_PI_2;
         let phi = 2.0 * PI * v;
 
         let cos_gamma = f64::cos(gamma);
 
-
-        Vec3::new(cos_gamma * f64::cos(phi), cos_gamma * f64::sin(phi), f64::sin(gamma))
+        Vec3::new(
+            cos_gamma * f64::cos(phi),
+            cos_gamma * f64::sin(phi),
+            f64::sin(gamma),
+        )
     }
 
     pub fn x(&self) -> f64 {
@@ -92,15 +99,15 @@ impl Vec3 {
         self.0 .2
     }
 
-    pub fn length(self) -> f64 {
+    pub fn length(&self) -> f64 {
         f64::sqrt(self.length_squared())
     }
 
-    pub fn length_squared(self) -> f64 {
+    pub fn length_squared(&self) -> f64 {
         self.x() * self.x() + self.y() * self.y() + self.z() * self.z()
     }
 
-    pub fn dot(self, rhs: &Vec3) -> f64 {
+    pub fn dot(&self, rhs: &Vec3) -> f64 {
         self.x() * rhs.x() + self.y() * rhs.y() + self.z() * rhs.z()
     }
 
@@ -117,67 +124,11 @@ impl Vec3 {
     }
 }
 
-impl Add<Vec3> for Vec3 {
+impl Add for Vec3 {
     type Output = Vec3;
 
     fn add(self, rhs: Vec3) -> Self::Output {
         Vec3::new(self.x() + rhs.x(), self.y() + rhs.y(), self.z() + rhs.z())
-    }
-}
-
-impl Neg for Vec3 {
-    type Output = Vec3;
-
-    fn neg(self) -> Self::Output {
-        Vec3::new(-self.x(), -self.y(), -self.z())
-    }
-}
-
-impl Deref for Vec3 {
-    type Target = Triple<f64>;
-
-    fn deref(&self) -> &Self::Target {
-        &self.0
-    }
-}
-
-impl Sub<Vec3> for Vec3 {
-    type Output = Vec3;
-
-    fn sub(self, rhs: Vec3) -> Self::Output {
-        Vec3::new(self.x() - rhs.x(), self.y() - rhs.y(), self.z() - rhs.z())
-    }
-}
-
-impl Mul<f64> for Vec3 {
-    type Output = Vec3;
-
-    fn mul(self, rhs: f64) -> Self::Output {
-        Vec3::new(self.x() * rhs, self.y() * rhs, self.z() * rhs)
-    }
-}
-
-impl Mul<Vec3> for f64 {
-    type Output = Vec3;
-
-    fn mul(self, rhs: Vec3) -> Self::Output {
-        rhs * self
-    }
-}
-
-impl Mul<Vec3> for Vec3 {
-    type Output = Vec3;
-
-    fn mul(self, rhs: Vec3) -> Self::Output {
-        Vec3::new(self.x() * rhs.x(), self.y() * rhs.y(), self.z() * rhs.z())
-    }
-}
-
-impl Add<f64> for Vec3 {
-    type Output = Vec3;
-
-    fn add(self, rhs: f64) -> Self::Output {
-        Vec3::new(self.x() + rhs, self.y() + rhs, self.z() + rhs)
     }
 }
 
@@ -189,10 +140,72 @@ impl Add<Vec3> for f64 {
     }
 }
 
+impl Add<f64> for Vec3 {
+    type Output = Vec3;
+
+    fn add(self, rhs: f64) -> Self::Output {
+        Vec3::new(self.x() + rhs, self.y() + rhs, self.z() + rhs)
+    }
+}
+
+impl Sub for Vec3 {
+    type Output = Vec3;
+
+    fn sub(self, rhs: Vec3) -> Self::Output {
+        Vec3::new(self.x() - rhs.x(), self.y() - rhs.y(), self.z() - rhs.z())
+    }
+}
+
+impl Neg for Vec3 {
+    type Output = Vec3;
+
+    fn neg(self) -> Self::Output {
+        Vec3::new(-self.x(), -self.y(), -self.z())
+    }
+}
+
+impl Mul for Vec3 {
+    type Output = Vec3;
+
+    fn mul(self, rhs: Self) -> Self::Output {
+        Vec3::new(self.x() * rhs.x(), self.y() * rhs.y(), self.z() * rhs.z())
+    }
+}
+
+impl Mul<f64> for Vec3 {
+    type Output = Vec3;
+
+    fn mul(self, rhs: f64) -> Self::Output {
+        Vec3::new(self.x().mul(rhs), self.y().mul(rhs), self.z().mul(rhs))
+    }
+}
+
+impl Mul<Vec3> for f64 {
+    type Output = Vec3;
+
+    fn mul(self, rhs: Vec3) -> Self::Output {
+        rhs * self
+    }
+}
+
 impl Div<f64> for Vec3 {
     type Output = Vec3;
 
     fn div(self, rhs: f64) -> Self::Output {
         Vec3::new(self.x() / rhs, self.y() / rhs, self.z() / rhs)
+    }
+}
+
+impl Deref for Vec3 {
+    type Target = Triple<f64>;
+
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
+}
+
+impl Default for Vec3 {
+    fn default() -> Self {
+        Self::ZERO
     }
 }

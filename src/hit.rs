@@ -1,4 +1,4 @@
-use crate::material::Material;
+use crate::material::Scatterable;
 use crate::ray::Ray;
 use crate::sphere::Sphere;
 use crate::vec3::{Point3, Vec3};
@@ -8,8 +8,7 @@ pub struct HitRecord<'a> {
     normal: Vec3,
     t: f64,
     front_face: bool,
-    material: &'a Box<dyn Material>
-
+    material: &'a Box<dyn Scatterable>
 }
 
 pub struct HittableList {
@@ -25,12 +24,12 @@ impl HitRecord<'_> {
         &self.normal
     }
 
-    pub fn t(&self) -> f64 {
-        self.t
+    pub fn material(&self) -> &Box<dyn Scatterable> {
+        &self.material
     }
 
-    pub fn material(&self) -> &Box<dyn Material> {
-        &self.material
+    pub fn front_face(&self) -> bool {
+        self.front_face
     }
 
     fn set_face_normal(&mut self, ray: &Ray, outward_normal: &Vec3) {
@@ -43,7 +42,7 @@ impl HitRecord<'_> {
     }
 }
 
-pub trait Hittable {
+pub trait Hittable: Send + Sync {
     fn hit(&self, ray: &Ray, t_min: f64, t_max: f64) -> Option<HitRecord>;
 }
 

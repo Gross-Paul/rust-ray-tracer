@@ -1,13 +1,13 @@
-use crate::{vec3::Point3, material::Material};
+use crate::{vec3::Point3, material::Scatterable};
 
 pub struct Sphere {
     center: Point3,
     radius: f64,
-    material : Box<dyn Material>
+    material : Box<dyn Scatterable>
 }
 
 impl Sphere {
-    pub fn new(center: Point3, radius: f64, material : Box<dyn Material>) -> Sphere {
+    pub fn new(center: Point3, radius: f64, material : Box<dyn Scatterable>) -> Sphere {
         Sphere { center, radius, material }
     }
 
@@ -19,7 +19,7 @@ impl Sphere {
         self.radius
     }
 
-    pub fn material(&self) -> &Box<dyn Material> {
+    pub fn material(&self) -> &Box<dyn Scatterable> {
         &self.material
     }
 }
