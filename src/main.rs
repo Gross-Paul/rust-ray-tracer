@@ -5,9 +5,9 @@ use indicatif::ProgressIterator;
 use material::{Dielectric, Lambertian, Metal};
 use rand::{thread_rng, Rng};
 use ray::Ray;
+use rayon::prelude::*;
 use sphere::Sphere;
 use std::io::Write;
-use std::thread;
 use std::{f64::INFINITY, fs::File};
 use vec3::{ColorF64, ColorU8, Point3};
 
@@ -26,7 +26,7 @@ fn get_ray_color(ray: &Ray, hittable_list: &HittableList, depth: i32) -> ColorF6
     }
 
     // If Hit
-    if let Some(hit_record) = hittable_list.hit(&ray, 0.0, INFINITY) {
+    if let Some(hit_record) = hittable_list.hit(&ray, 0.0001, INFINITY) {
         let mut scattered: Ray = Ray { ..*ray };
         let mut attenuation: ColorF64 = ColorF64::ONE;
 
@@ -45,9 +45,8 @@ fn get_ray_color(ray: &Ray, hittable_list: &HittableList, depth: i32) -> ColorF6
 }
 fn main() {
     let mut file = File::create("out.ppm").expect("out.ppm can't be created");
-    
 
-    let max_depth = 10;
+    let max_depth = 50;
 
     let samples_per_pixel = 100;
 
@@ -57,8 +56,8 @@ fn main() {
 
     let sphere1 = Sphere::new(
         Point3::new(0.5, 0.0, -1.0),
-        0.5,
-        Box::new(Dielectric { index: 1.1 }),
+        -0.5,
+        Box::new(Dielectric { index: 1.5 }),
     );
     let sphere2 = Sphere::new(
         Point3::new(-0.5, 0.0, -1.0),
@@ -70,8 +69,8 @@ fn main() {
     let sphere3 = Sphere::new(
         Point3::new(-0.5, 0.0, 0.),
         0.5,
-        Box::new(Metal {
-            albedo: ColorF64::new(1., 1., 1.),
+        Box::new(Lambertian {
+            albedo: ColorF64::new(0.5, 0.5, 0.5),
         }),
     );
 
@@ -88,14 +87,16 @@ fn main() {
 
     let hittable_list = HittableList { hittable_list };
 
-    for j in (0..IMAGE_HEIGHT - 1).rev().progress() {
-        for i in 0..IMAGE_WIDTH {
-            let mut ray_color = ColorF64::ZERO;
+    let mut pixels = vec![0; IMAGE_WIDTH * IMAGE_HEIGHT * 3];
+    let bands: Vec<(usize, &mut [u8])> = pixels.chunks_mut(IMAGE_WIDTH * 3).enumerate().collect();
 
+    bands.into_par_iter().for_each(|(j, band)| {
+        for i in (0..(IMAGE_WIDTH * 3)).step_by(3) {
+            let mut ray_color = ColorF64::ZERO;
             let mut rng = thread_rng();
 
             for _ in 0..samples_per_pixel {
-                let u = (i as f64 + rng.gen::<f64>()) / (IMAGE_WIDTH - 1) as f64;
+                let u = ((IMAGE_WIDTH - (i / 3)) as f64 + rng.gen::<f64>()) / (IMAGE_WIDTH - 1) as f64;
                 let v = (j as f64 + rng.gen::<f64>()) / (IMAGE_HEIGHT - 1) as f64;
 
                 let ray = camera.gen_ray(u, v);
@@ -106,8 +107,17 @@ fn main() {
             }
 
             let ray_color = ColorU8::from(ray_color);
-            content.push_str(&String::from(ray_color));
+
+            for e in ray_color.t().iter().enumerate() {
+                band[i + e.0] = *e.1;
+            }
         }
+    });
+
+
+    for pixel in pixels.chunks(3).rev() {
+        let pixel_string = format!("{} {} {}\n", pixel[0], pixel[1], pixel[2]);
+        content.push_str(&pixel_string);
     }
 
     writeln!(&mut file, "{}", content).expect("Couldn't write inside file");

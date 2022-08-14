@@ -20,6 +20,12 @@ pub struct Vec3(Triple<f64>);
 #[derive(Clone, Copy)]
 pub struct ColorU8(Triple<u8>);
 
+impl ColorU8 {
+    pub fn t(&self) -> [u8; 3] {
+        [self.0.0, self.0.1, self.0.2]
+    }
+}
+
 pub type Point3 = Vec3;
 pub type ColorF64 = Vec3;
 
